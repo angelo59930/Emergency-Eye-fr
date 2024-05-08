@@ -14,7 +14,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 button {
   background-color: #23a98d;
   border: none;
@@ -25,5 +25,9 @@ button {
   display: inline-block;
   font-size: 16px;
 }
- 
+
+button:hover {
+  background-color: #1b6f5b;
+}
+
 </style>

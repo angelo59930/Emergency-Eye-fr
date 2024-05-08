@@ -1,21 +1,23 @@
 <template>
-  <h1>Hola mania</h1>
-  <Button>Click me</Button>
+  <AddTrasladoButton class=addTraslado>+ TRASLADO</AddTrasladoButton>
 </template>
 
 <script>
-import Button from "primevue/button"
-
+import AddTrasladoButton from "./components/AddTrasladoButton"
 export default {
   name: 'App',
   components: {
-    Button
+    AddTrasladoButton
   }
 }
 
 </script>
 
-<style>
+<style scoped>
+.addTraslado {
+  border-radius: 25px;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

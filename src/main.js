@@ -1,18 +1,20 @@
-import { createApp } from "vue";
+/**
+ * main.js
+ *
+ * Bootstraps Vuetify and other plugins then mounts the App`
+ */
 
-import PrimeVue from "primevue/config";
-import App from "./App.vue";
-import Button from "primevue/button";
-import Card from "primevue/card";
-import Tag from "primevue/tag";
+// Plugins
+import { registerPlugins } from '@/plugins'
 
-//in main.js
-import "primevue/resources/themes/aura-light-green/theme.css";
+// Components
+import App from './App.vue'
 
-const app = createApp(App);
-app.mount("#app");
-app.use(PrimeVue);
-app.use(Button);
-app.use(Card);
-app.use(Tag);
- 
+// Composables
+import { createApp } from 'vue'
+
+const app = createApp(App)
+
+registerPlugins(app)
+
+app.mount('#app')

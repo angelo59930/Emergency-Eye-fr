@@ -22,7 +22,7 @@
 import { defineEmits, computed } from 'vue';
 
 const props = {
-  prioridad: {
+  priority: {
     type: String,
     required: true,
   }
@@ -38,8 +38,8 @@ const asignar = () => {
   emits('asignar');
 };
 
-computed(() => {
-  switch (props.prioridad) {
+const colorPrioridad = computed(() => {
+  switch (props.priority) {
     case 'alta':
       return '#f44336';
     case 'media':

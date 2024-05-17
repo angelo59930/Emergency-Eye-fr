@@ -36,7 +36,7 @@
     <v-row>
       <!-- Esto sera una lista de traslados a asignar -->
       <v-col cols="4">
-        <TravelCard prioridad="alta" @eliminar="funcionmia">
+        <TravelCard priority="alta" @eliminar="funcionmia">
           <template #header>
             <h2>Traslado 1 - (ALTA PRIORIDAD)</h2>
           </template>

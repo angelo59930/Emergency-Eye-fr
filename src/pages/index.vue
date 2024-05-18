@@ -47,6 +47,30 @@
           </template>
         </TravelCard>
       </v-col>
+      <v-col cols="4">
+        <TravelCard priority="media" @eliminar="funcionmia">
+          <template #header>
+            <h2>Traslado 2 - (MEDIA PRIORIDAD)</h2>
+          </template>
+          <template #description>
+            <p>Origen: Hospital Regional</p>
+            <p>Destino: Hospital de niños</p>
+            <p>Estado: Espera</p>
+          </template>
+        </TravelCard>
+      </v-col>
+      <v-col cols="4">
+        <TravelCard priority="baja" @eliminar="funcionmia">
+          <template #header>
+            <h2>Traslado 3 - (BAJA PRIORIDAD)</h2>
+          </template>
+          <template #description>
+            <p>Origen: Hospital Regional</p>
+            <p>Destino: Hospital de niños</p>
+            <p>Estado: Espera</p>
+          </template>
+        </TravelCard>
+      </v-col>
     </v-row>
   </v-container>
 </template>

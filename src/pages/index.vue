@@ -23,7 +23,7 @@
 
       </v-col>
       <v-col cols="8">
-        <GeoMap />
+        <GeoMap :markers="data.markers" />
       </v-col>
     </v-row>
     <v-row>
@@ -38,7 +38,7 @@
       <v-col cols="4">
         <TravelCard priority="alta" @eliminar="funcionmia">
           <template #header>
-            <h2>Traslado 1 - (ALTA PRIORIDAD)</h2>
+            <h2>Traslado 1 - (ALTA)</h2>
           </template>
           <template #description>
             <p>Origen: Hospital Regional</p>
@@ -50,7 +50,7 @@
       <v-col cols="4">
         <TravelCard priority="media" @eliminar="funcionmia">
           <template #header>
-            <h2>Traslado 2 - (MEDIA PRIORIDAD)</h2>
+            <h2>Traslado 2 - (MEDIA)</h2>
           </template>
           <template #description>
             <p>Origen: Hospital Regional</p>
@@ -62,7 +62,7 @@
       <v-col cols="4">
         <TravelCard priority="baja" @eliminar="funcionmia">
           <template #header>
-            <h2>Traslado 3 - (BAJA PRIORIDAD)</h2>
+            <h2>Traslado 3 - (BAJA)</h2>
           </template>
           <template #description>
             <p>Origen: Hospital Regional</p>
@@ -76,5 +76,20 @@
 </template>
 
 <script setup>
+
+const data = ({
+  markers: [
+    {
+      latitude: -31.41895036757332,
+      longitude: -64.18806943065226,
+      description: 'Hospital Regional'
+    },
+    {
+      latitude: -31.45258230636035, 
+      longitude: - 64.1886027433417,
+      description: 'Lautaro 667'
+    }
+  ]
+})
 
 </script>

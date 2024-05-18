@@ -31,7 +31,7 @@ onBeforeMount(() => {
 })
 
 const createMapLayer = () => {
-  map = L.map('mapContainer').setView([-26.8560346, -49.239189], 5)
+  map = L.map('mapContainer').setView([-31.41895036757332, -64.18806943065226], 13)
   L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
     attribution:
       '&copy; <a href="https://osm.org/copyright">OpenStreetMap</a> contributors'
@@ -54,8 +54,8 @@ const setMarkers = () => {
 
 <style scoped>
 #mapContainer {
-  width: 100vw;
-  height: calc(100vh - 100px);
+  width: auto;
+  height: calc(100vh - 200px);
   border-radius: 25px;
 }
 </style>

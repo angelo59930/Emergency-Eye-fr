@@ -85,7 +85,7 @@ const data = ({
       description: 'Hospital Regional'
     },
     {
-      latitude: -31.45258230636035, 
+      latitude: -31.45258230636035,
       longitude: - 64.1886027433417,
       description: 'Lautaro 667'
     }

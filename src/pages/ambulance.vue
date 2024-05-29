@@ -24,21 +24,24 @@
 
 <script setup>
 import NavBar from '@/components/NavBar.vue'
-import { ref } from 'vue'
+import AmbulanceApi from '@/services/AmbulanceService';
+import { ref, onMounted } from 'vue'
+
+let ambulances = ref([])
+
+const api = new AmbulanceApi(process.env.API_URL)
+
+onMounted(async () => {
+  ambulances.value = await api.get('/ambulances')
+})
 
 const headers = [
   { title: 'ID', value: 'id' },
-  { title: 'Modelo', value: 'model' },
-  { title: 'Año', value: 'year' },
+  { title: 'Patente', value: 'licensePlate' },
+  { title: 'Telefono', value: 'telephone' },
   { title: 'Acciones', value: 'action', sortable: false },
 ]
 
-const ambulances = ref([
-  { id: 1, model: 'Modelo 1', year: 2020 },
-  { id: 2, model: 'Modelo 2', year: 2021 },
-  { id: 3, model: 'Modelo 3', year: 2022 },
-  // Añade más datos de prueba aquí
-])
 
 const editItem = (item) => {
   console.log('Edit item', item)

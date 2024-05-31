@@ -1,25 +1,31 @@
 class AmbulanceApi {
-  constructor(baseURL){
+  constructor(baseURL) {
     this.baseURL = baseURL;
   }
 
-  async getAmbulance(){
-    const response = await fetch(`${this.baseURL}/ambulance`);
+  async getAmbulance() {
+    const response = await fetch(`${this.baseURL}/ambulances`, {
+      headers: {
+        "authorization": "Bearer " + localStorage.getItem("token"),
+      },
+    });
     if (!response.ok) {
       throw new Error(`An error has occurred: ${response.status}`);
     }
     return response.json();
   }
 
-  async postAmbulance(data){
-    const response = await fetch(`${this.baseURL}/ambulance/create`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      authorization: "Bearer " + localStorage.getItem("token"),
-      body: JSON.stringify(data),
-    });
+  async postAmbulance(data) {
+    const response = await fetch(
+      `${this.baseURL}/ambulances/create?licensePlate=${data.licensePlate}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
+    );
     if (!response.ok) {
       throw new Error(`An error has occurred: ${response.status}`);
     }
@@ -27,14 +33,13 @@ class AmbulanceApi {
   }
 
   // no tiene un update de esta manera
-  // TODO: discutir este metodo
-  async putAmbulance(id, data){
-    const response = await fetch(`${this.baseURL}/ambulance/${id}`, {
+  async putAmbulance(data) {
+    const response = await fetch(`${this.baseURL}/ambulances`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+        "authorization": "Bearer " + localStorage.getItem("token"),
       },
-      authorization: "Bearer " + localStorage.getItem("token"),
       body: JSON.stringify(data),
     });
     if (!response.ok) {
@@ -43,17 +48,18 @@ class AmbulanceApi {
     return response.json();
   }
 
-  async deleteAmbulance(id){
-    const response = await fetch(`${this.baseURL}/ambulance/delete/${id}`, {
+  async deleteAmbulance(id) {
+    const response = await fetch(`${this.baseURL}/ambulances/delete?id=${id}`, {
       method: "DELETE",
-      authorization: "Bearer " + localStorage.getItem("token"),
+      headers: {
+        authorization: "Bearer " + localStorage.getItem("token"),
+      },
     });
     if (!response.ok) {
       throw new Error(`An error has occurred: ${response.status}`);
     }
     return response.json();
   }
-
 }
 
 export default AmbulanceApi;

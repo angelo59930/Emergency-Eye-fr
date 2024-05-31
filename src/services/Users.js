@@ -1,4 +1,4 @@
-class DriverApi {
+class UserApi {
   constructor(baseURL) {
     this.baseURL = baseURL;
   }
@@ -55,4 +55,4 @@ class DriverApi {
 
 }
 
-export default DriverApi;
+export default UserApi;

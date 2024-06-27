@@ -122,7 +122,7 @@
                   required></v-select>
               </v-col>
               <v-col cols="12">
-                <v-text-field v-model="newTransfer.patient.birthDate" label="Fecha de Nacimiento"
+                <v-text-field v-model="newTransfer.patient.birthDate" label="Fecha de Nacimiento" type="date"
                   required></v-text-field>
               </v-col>
             </template>

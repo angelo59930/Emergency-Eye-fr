@@ -6,7 +6,7 @@ class AmbulanceApi {
   async getAmbulance() {
     const response = await fetch(`${this.baseURL}/ambulances`, {
       headers: {
-        "authorization": "Bearer " + localStorage.getItem("token"),
+        "authorization": "Bearer " + sessionStorage.getItem("token"),
       },
     });
     if (!response.ok) {
@@ -22,7 +22,7 @@ class AmbulanceApi {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          authorization: "Bearer " + localStorage.getItem("token"),
+          authorization: "Bearer " + sessionStorage.getItem("token"),
         },
       }
     );
@@ -38,7 +38,7 @@ class AmbulanceApi {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        "authorization": "Bearer " + localStorage.getItem("token"),
+        "authorization": "Bearer " + sessionStorage.getItem("token"),
       },
       body: JSON.stringify(data),
     });
@@ -52,7 +52,7 @@ class AmbulanceApi {
     const response = await fetch(`${this.baseURL}/ambulances/delete?id=${id}`, {
       method: "DELETE",
       headers: {
-        authorization: "Bearer " + localStorage.getItem("token"),
+        authorization: "Bearer " + sessionStorage.getItem("token"),
       },
     });
     if (!response.ok) {

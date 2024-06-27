@@ -3,21 +3,25 @@ class UserApi {
     this.baseURL = baseURL;
   }
 
-  async getDriver() {
-    const response = await fetch(`${this.baseURL}/driver`);
+  async getEnployed() {
+    const response = await fetch(`${this.baseURL}/users`, {
+      headers: {
+        authorization: "Bearer " + sessionStorage.getItem("token"),
+      },
+    });
     if (!response.ok) {
       throw new Error(`An error has occurred: ${response.status}`);
     }
     return response.json();
   }
 
-  async postDriver(data) {
-    const response = await fetch(`${this.baseURL}/driver/create`, {
+  async addEmployee(data) {
+    const response = await fetch(`${this.baseURL}/auth/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        authorization: "Bearer " + sessionStorage.getItem("token"),
       },
-      authorization: "Bearer " + localStorage.getItem("token"),
       body: JSON.stringify(data),
     });
     if (!response.ok) {
@@ -25,34 +29,7 @@ class UserApi {
     }
     return response.json();
   }
-
-  async putDriver(id, data) {
-    const response = await fetch(`${this.baseURL}/driver/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      authorization: 'Bearer ' + localStorage.getItem('token'),
-      body: JSON.stringify(data),
-    });
-    if (!response.ok) {
-      throw new Error(`An error has occurred: ${response.status}`);
-    }
-    return response.json();
-  }
-
-  async deleteDriver(id) {
-    const response = await fetch(`${this.baseURL}/driver/delete/${id}`, {
-      method: "DELETE",
-      authorization: "Bearer " + localStorage.getItem("token"),
-    });
-    if (!response.ok) {
-      throw new Error(`An error has occurred: ${response.status}`);
-    }
-    return response.json();
-  }
-
-
 }
+
 
 export default UserApi;

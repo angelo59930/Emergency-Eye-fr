@@ -8,7 +8,7 @@
 
     <v-spacer></v-spacer>
     <v-btn text to="/travel">TRASLADOS</v-btn>
-    <v-btn text to="/driver">CHOFER</v-btn>
+    <v-btn text to="/user">PERSONAL</v-btn>
     <v-btn text to="/ambulance">AMBULANCIAS</v-btn>
     <v-btn text to="/patient">PACIENTES</v-btn>
   </v-app-bar>

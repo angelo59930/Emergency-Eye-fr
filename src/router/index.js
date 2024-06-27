@@ -21,6 +21,11 @@ const router = createRouter({
       name: "Ambulance",
       component: () => import("../pages/ambulance.vue"),
     },
+    {
+      path: "/login",
+      name: "Login",
+      component: () => import("../pages/login.vue"),
+    }
   ],
 });
 

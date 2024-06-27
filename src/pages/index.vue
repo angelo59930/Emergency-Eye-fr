@@ -141,6 +141,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { PatientApi } from '@/services/PatientService';
+
+const patientApi = new PatientApi('http://127.0.0.1:8081/api/v1')
 
 // Estado del dialogo
 const dialog = ref(false)
@@ -189,36 +192,46 @@ const showDialog = () => {
   dialog.value = true
 }
 
-const saveTransfer = () => {
-  // lógica para guardar el nuevo traslado
-  console.log('Guardando nuevo traslado:', newTransfer.value)
-  
-
-
-
-  dialog.value = false
-  // Reseteo del formulario
-  newTransfer.value.origen = ''
-  newTransfer.value.destino = ''
-  newTransfer.value.priority = ''
-  newTransfer.value.patient.name = ''
-  newTransfer.value.patient.lastName = ''
-  newTransfer.value.patient.document = ''
-  newTransfer.value.patient.socialSecurity = ''
-  newTransfer.value.patient.socialSecurityNumber = ''
-  newTransfer.value.patient.gender = ''
-  newTransfer.value.patient.birthDate = ''
-  isNewPatient.value = false
-  existingPatientDNI.value = ''
+const saveTransfer = async () => {
+  try {
+    if (isNewPatient.value) {
+      // Crear nuevo paciente
+      const response = await patientApi.createPatient(newTransfer.value.patient)
+      newTransfer.value.patient.id = response.data.id
+      console.log('Nuevo paciente creado:', response.data)
+    } else {
+      // Buscar paciente por DNI
+      await fetchPatient()
+    }
+    // lógica para guardar el nuevo traslado
+    console.log('Guardando nuevo traslado:', newTransfer.value)
+    // Aquí deberías agregar la lógica para guardar el traslado usando el servicio correspondiente
+  } catch (error) {
+    console.error('Error al guardar el traslado:', error)
+  } finally {
+    dialog.value = false
+    // Reseteo del formulario
+    newTransfer.value.origen = ''
+    newTransfer.value.destino = ''
+    newTransfer.value.priority = ''
+    newTransfer.value.patient.name = ''
+    newTransfer.value.patient.lastName = ''
+    newTransfer.value.patient.document = ''
+    newTransfer.value.patient.socialSecurity = ''
+    newTransfer.value.patient.socialSecurityNumber = ''
+    newTransfer.value.patient.gender = ''
+    newTransfer.value.patient.birthDate = ''
+    isNewPatient.value = false
+    existingPatientDNI.value = ''
+  }
 }
 
 const fetchPatient = async () => {
-  // Lógica para obtener la información del paciente existente por DNI
   const dni = existingPatientDNI.value
   if (dni) {
     try {
       console.log('Obteniendo información del paciente con DNI:', dni)
-      const response = await PatientService.getPatientByDNI(dni)
+      const response = await patientApi.getPatientByDNI(dni)
       if (response.data) {
         // Asignar la información del paciente existente a newTransfer.patient
         newTransfer.value.patient.name = response.data.name

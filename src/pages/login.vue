@@ -22,41 +22,50 @@
   </v-container>
 </template>
 
-<script>
-import router from '@/router';
-import { LoginApi } from '@/services/LoginService';
+<script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { useLoginService } from '@/services/useLoginService';
 
-export default {
-  data() {
-    return {
-      valid: true,
-      login: {
-        username: '',
-        password: '',
-      },
-      usernameRules: [
-        v => !!v || 'El nombre de usuario es requerido',
-      ],
-      passwordRules: [
-        v => !!v || 'La contraseña es requerida',
-      ],
-    };
-  },
-  methods: {
-    async submit() {
-      console.log("enviar datos: " + this.login.username + " " + this.login.password)
-      if (this.$refs.form.validate()) {
-        try {
-          let loginApi = new LoginApi("http://127.0.0.1:8081/api/v1");
-          const response = await loginApi.login(this.login);
-          console.log(response)
-          sessionStorage.setItem('token', response);
-          router.push("/");
-        } catch (error) {
-          console.error('Error en el login:', error);
-        }
-      }
-    },
-  },
+const valid = ref(true);
+const login = ref({
+  username: '',
+  password: ''
+});
+
+const usernameRules = [
+  v => !!v || 'El nombre de usuario es requerido',
+];
+
+const passwordRules = [
+  v => !!v || 'La contraseña es requerida',
+];
+
+const router = useRouter();
+const { loginUser } = useLoginService();
+
+const submit = async () => {
+  console.log(`enviar datos: ${login.value.username} ${login.value.password}`);
+  if (valid.value) {
+    try {
+      const response = await loginUser(login.value);
+      console.log(response);
+      sessionStorage.setItem('token', response);
+      router.push("/");
+    } catch (error) {
+      console.error('Error en el login:', error);
+    }
+  }
 };
 </script>
+
+<style scoped>
+.v-card {
+  margin-top: 20px;
+}
+
+.v-card-title {
+  background-color: #23a98d;
+  color: white;
+}
+</style>

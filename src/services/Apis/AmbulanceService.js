@@ -22,10 +22,11 @@ class AmbulanceApi {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          authorization: "Bearer " + sessionStorage.getItem("token"),
+          "authorization": "Bearer " + sessionStorage.getItem("token"),
         },
       }
     );
+    console.log(response);
     if (!response.ok) {
       throw new Error(`An error has occurred: ${response.status}`);
     }
@@ -52,7 +53,7 @@ class AmbulanceApi {
     const response = await fetch(`${this.baseURL}/ambulances/delete?id=${id}`, {
       method: "DELETE",
       headers: {
-        authorization: "Bearer " + sessionStorage.getItem("token"),
+        "authorization": "Bearer " + sessionStorage.getItem("token"),
       },
     });
     if (!response.ok) {

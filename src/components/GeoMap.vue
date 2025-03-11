@@ -71,6 +71,16 @@ const setMarkers = () => {
 </script>
 
 <style scoped>
+.map {
+  width: 100%;
+  height: 100%;
+}
+
+#mapContainer {
+  width: 100%;
+  height: 100%;
+  min-height: 400px;
+}
 #mapContainer {
   width: auto;
   height: calc(100vh - 200px);

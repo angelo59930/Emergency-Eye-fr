@@ -44,8 +44,8 @@ const asignar = () => {
 };
 
 const colorPrioridad = computed(() => {
-  console.log(props.priority);
-  switch (props.priority) {
+  const priority = props.priority?.toLowerCase();
+  switch (priority) {
     case 'alta':
       return '#D39D99';
     case 'media':

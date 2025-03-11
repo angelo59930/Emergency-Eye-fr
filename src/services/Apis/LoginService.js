@@ -1,7 +1,8 @@
-export class LoginApi {
+class LoginApi {
   constructor(baseURL) {
     this.baseURL = baseURL;
   }
+
   async login(credentials) {
     const formBody = Object.keys(credentials)
       .map(
@@ -12,13 +13,15 @@ export class LoginApi {
 
     console.log(formBody);
 
-    const response = await fetch("http://localhost:8081/api/v1/auth/login", {
+    const response = await fetch(this.baseURL + "/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: formBody    
+      body: formBody
     });
     return response.text();
   }
 }
+
+export { LoginApi };

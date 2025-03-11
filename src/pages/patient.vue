@@ -69,9 +69,9 @@
 <script setup>
 import NavBar from '@/components/NavBar.vue'
 import { ref, onMounted } from 'vue'
-import {PatientApi} from '@/services/PatientService'
+import {PatientApi} from '@/services/Apis/PatientService'
 
-const patientApi = new PatientApi('http://127.0.0.1:8081/api/v1')
+const patientApi = new PatientApi('http://localhost:8081/api/v1')
 
 const headers = [
   { title: 'ID', value: 'id' },

@@ -4,12 +4,12 @@ export class PatientApi {
   }
 
   // Método auxiliar para hacer solicitudes fetch
-  async request(endpoint, method = "GET", body = null) {
+  async request(endpoint, method = 'GET', body = null) {
     const options = {
       method,
       headers: {
-        "Content-Type": "application/json",
-        authorization: "Bearer " + sessionStorage.getItem("token"),
+        'Content-Type': 'application/json',
+        authorization: 'Bearer ' + sessionStorage.getItem('token'),
       },
     };
 
@@ -27,7 +27,7 @@ export class PatientApi {
 
   // Obtener todos los pacientes
   getPatients() {
-    return this.request("/patients");
+    return this.request('/patients');
   }
 
   // Obtener paciente por ID
@@ -37,9 +37,7 @@ export class PatientApi {
 
   // Obtener paciente por seguridad social
   getPatientBySocialSecurity(socialSecurity) {
-    return this.request(
-      `/patients/socialSecurity?socialSecurity=${socialSecurity}`
-    );
+    return this.request(`/patients/socialSecurity?socialSecurity=${socialSecurity}`);
   }
 
   // Obtener paciente por documento
@@ -49,21 +47,21 @@ export class PatientApi {
 
   // Crear nuevo paciente
   createPatient(patient) {
-    return this.request("/patients/create", "POST", patient);
+    return this.request('/patients/create', 'POST', patient);
   }
 
   // Actualizar paciente
-  updatePatient( patient) {
-    return this.request(`/patients/update`, "PUT", patient);
+  updatePatient(patient) {
+    return this.request('/patients/update', 'PUT', patient);
   }
 
   // Eliminar paciente
   deletePatient(id) {
-    return this.request(`/patients/delete?id=${id}`, "DELETE");
+    return this.request(`/patients/delete?id=${id}`, 'DELETE');
   }
 
   // Obtener lista de documentos
   listDocuments() {
-    return this.request("/patients/documents");
+    return this.request('/patients/documents');
   }
 }

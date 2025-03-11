@@ -80,7 +80,7 @@ let newEmployee = ref({
   authorities: [{ authority: "string" }]
 })
 
-const api = new UserApi('http://127.0.0.1:8081/api/v1')
+const api = new UserApi('http://localhost:8081/api/v1')
 
 onMounted(async () => {
   console.log("se monta la vista")

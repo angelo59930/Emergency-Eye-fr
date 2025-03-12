@@ -1,7 +1,8 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <NavBar />
   <v-container>
+    <NavBar />
+
     <v-row>
       <v-col cols="4">
         <h2>Gestor de <b>Empleados</b></h2>

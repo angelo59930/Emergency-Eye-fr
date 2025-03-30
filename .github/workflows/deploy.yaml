@@ -1,0 +1,52 @@
+name: Deploy frontend application
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set Environment Variable
+        id: set-env
+        run: echo "ENVIRONMENT=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+
+      - name: Set Environment
+        id: set-env-aws
+        run: |
+          case "${GITHUB_REF#refs/heads/}" in
+            "dev")
+              echo "ENVIRONMENT=dev" >> $GITHUB_ENV
+              echo "DIRIP=${{ vars.DEV_DIR_IP }}" >> $GITHUB_ENV
+              ;;
+            "main")
+              echo "ENVIRONMENT=prod" >> $GITHUB_ENV
+              echo "DIRIP=${{ vars.MAIN_DIR_IP }}" >> $GITHUB_ENV
+              ;;
+            *)
+              echo "Error: Branch name does not match any environment"
+              exit 1
+              ;;
+          esac
+
+      - name: Install dependencies
+        id: install-dependencies
+        run: npm install
+
+      - name: Build app
+        run: npm run build
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ env.DIRIP }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            scp -r dist/* ${{ secrets.SSH_USERNAME }}@${{ env.DIRIP }}:/var/www/emergency-eye/

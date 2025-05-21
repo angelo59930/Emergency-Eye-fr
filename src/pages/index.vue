@@ -407,7 +407,7 @@
             <v-btn color="grey" variant="outlined" @click="assignDialog = false">
               Cancelar
             </v-btn>
-            <v-btn color="success" class="ml-2" @click="assignAmbulance" :loading="assigning">
+            <v-btn color="success" class="ml-2" @click="assignAmbulance" :loading="saving">
               Asignar
             </v-btn>
           </v-card-actions>
@@ -420,10 +420,21 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import mockService from '@/services/mockService';
+import NavBar from '@/components/NavBar.vue';
+import StateTag from '@/components/StateTag.vue';
+import GeoMap from '@/components/GeoMap.vue';
+import TravelCard from '@/components/TravelCard.vue';
+import * as OpenLocationCode from 'open-location-code';
 
 // Form state
 const newTransferDialog = ref(false);
 const saving = ref(false);
+const loading = ref(false);
+const ambulances = ref([]);
+const transfers = ref([]);
+const activeTransfers = ref([]);
+
 const newTransfer = ref({
   patientName: '',
   patientLastName: '',
@@ -479,7 +490,6 @@ const createTransfer = async () => {
   
   saving.value = true;
   try {
-    // Aquí iría la llamada a la API para crear el traslado
     const transfer = {
       patient: {
         name: newTransfer.value.patientName,
@@ -493,17 +503,11 @@ const createTransfer = async () => {
       priority: newTransfer.value.priority,
       scheduledTime: newTransfer.value.scheduledTime,
       notes: newTransfer.value.notes,
-      status: 'PENDING'
-    };
-    console.log('Creando traslado:', transfer);
-    
-    // Agregar el nuevo traslado a la lista de traslados activos
-    activeTransfers.value.push({
-      id: activeTransfers.value.length + 1,
-      ...transfer,
       status: 'Pendiente'
-    });
-    
+    };
+
+    await mockService.addTransfer(transfer);
+    await loadData(); // Recargar datos
     closeNewTransferDialog();
   } catch (error) {
     console.error('Error al crear el traslado:', error);
@@ -512,57 +516,73 @@ const createTransfer = async () => {
   }
 };
 
-import { usePatientService } from '@/services/usePatientService';
-import { ServiceFactory } from '@/services/ServiceFactory';
-import useAmbulanceService from '@/services/useAmbulanceService';
-import * as OpenLocationCode from 'open-location-code';
-import NavBar from '@/components/NavBar.vue';
-import StateTag from '@/components/StateTag.vue';
-import GeoMap from '@/components/GeoMap.vue';
-import TravelCard from '@/components/TravelCard.vue';
-import { mockAmbulances, mockTravels } from '@/services/mocks/mockData';
+const deleteTransfer = async (id) => {
+  try {
+    const confirmed = window.confirm('¿Está seguro que desea eliminar este traslado?');
+    if (!confirmed) return;
 
-const ambulances = ref([
-  {
-    id: 1,
-    licensePlate: 'ABC123',
-    status: 'AVAILABLE',
-    location: { lat: -31.4201, lng: -64.1888 }
-  },
-  {
-    id: 2,
-    licensePlate: 'XYZ789',
-    status: 'ON_DUTY',
-    location: { lat: -31.4150, lng: -64.1810 }
+    await mockService.deleteTransfer(id);
+    await loadData(); // Recargar datos
+  } catch (error) {
+    console.error('Error al eliminar el traslado:', error);
+    alert('Error al eliminar el traslado');
   }
-]);
-const transfers = ref(mockTravels);
+};
 
-// Estadísticas calculadas
-const stats = computed(() => ({
-  totalAmbulances: ambulances.value.length,
-  availableAmbulances: ambulances.value.filter(a => a.status === 'AVAILABLE').length,
-  onDutyAmbulances: ambulances.value.filter(a => a.status === 'ON_DUTY').length,
-  maintenanceAmbulances: ambulances.value.filter(a => a.status === 'MAINTENANCE').length,
-  activeTransfers: transfers.value.filter(t => t.status === 'IN_PROGRESS').length,
-  completedTransfers: transfers.value.filter(t => t.status === 'COMPLETED').length
-}));
+const assignAmbulance = async () => {
+  if (!selectedAmbulance.value || selectedCrew.value.length === 0) {
+    alert('Por favor seleccione una ambulancia y al menos un miembro del personal');
+    return;
+  }
 
-const markers = computed(() => {
-  return ambulances.value.map(ambulance => {
-    const defaultPosition = { lat: -31.4201, lng: -64.1888 }; // Córdoba
-    const position = ambulance.location || defaultPosition;
+  saving.value = true;
+  try {
+    const transfer = activeTransfers.value.find(t => t.id === selectedTransfer.value.id);
+    if (transfer) {
+      transfer.status = 'En Progreso';
+      transfer.assignedAmbulance = selectedAmbulance.value;
+      transfer.assignedCrew = selectedCrew.value;
+      transfer.assignmentNotes = assignmentNotes.value;
+      
+      await mockService.updateTransfer(transfer);
+      
+      // Actualizar estado de la ambulancia
+      const ambulance = ambulances.value.find(a => a.id === selectedAmbulance.value);
+      if (ambulance) {
+        ambulance.status = 'ON_DUTY';
+        await mockService.updateAmbulance(ambulance);
+      }
+    }
     
-    // Asegurarse de que las coordenadas sean números
-    const lat = typeof position.lat === 'number' ? position.lat : defaultPosition.lat;
-    const lng = typeof position.lng === 'number' ? position.lng : defaultPosition.lng;
+    await loadData(); // Recargar datos
+    assignDialog.value = false;
+  } catch (error) {
+    console.error('Error al asignar ambulancia:', error);
+  } finally {
+    saving.value = false;
+  }
+};
+
+const loadData = async () => {
+  loading.value = true;
+  try {
+    const [ambulanceData, transferData] = await Promise.all([
+      mockService.getAllAmbulances(),
+      mockService.getAllTransfers()
+    ]);
     
-    return {
-      position: { lat, lng },
-      title: `Ambulancia ${ambulance.licensePlate || 'Sin patente'}`,
-      icon: getMarkerIcon(ambulance.status)
-    };
-  });
+    ambulances.value = ambulanceData;
+    transfers.value = transferData;
+    activeTransfers.value = transferData.filter(t => t.status !== 'Completado');
+  } catch (error) {
+    console.error('Error loading data:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(async () => {
+  await loadData();
 });
 
 const dialog = ref(false);
@@ -570,52 +590,6 @@ const assignDialog = ref(false);
 const selectedTransfer = ref(null);
 const selectedAmbulance = ref(null);
 const isAssigning = ref(false);
-
-// Mock data for active transfers
-const activeTransfers = ref([
-  {
-    id: 1,
-    origin: 'Hospital Central',
-    destination: 'Clínica San Martín',
-    priority: 'Alta',
-    status: 'Pendiente',
-    patient: {
-      name: 'Juan',
-      lastName: 'Pérez',
-      document: '12345678',
-      socialSecurity: 'OSDE',
-      socialSecurityNumber: '123456789'
-    }
-  },
-  {
-    id: 2,
-    origin: 'Centro Médico Norte',
-    destination: 'Hospital Regional',
-    priority: 'Media',
-    status: 'Pendiente',
-    patient: {
-      name: 'María',
-      lastName: 'González',
-      document: '87654321',
-      socialSecurity: 'Swiss Medical',
-      socialSecurityNumber: '987654321'
-    }
-  },
-  {
-    id: 3,
-    origin: 'Sanatorio del Valle',
-    destination: 'Hospital Universitario',
-    priority: 'Baja',
-    status: 'Pendiente',
-    patient: {
-      name: 'Carlos',
-      lastName: 'Rodríguez',
-      document: '45678912',
-      socialSecurity: 'Galeno',
-      socialSecurityNumber: '456789123'
-    }
-  }
-]);
 
 const originSuggestions = ref([]);
 const destinationSuggestions = ref([]);
@@ -632,22 +606,6 @@ const availableCrew = ref([
 ]);
 
 const router = useRouter();
-
-onMounted(async () => {
-  try {
-    if (import.meta.env.VITE_USE_MOCKS !== 'true') {
-      const [travelData, ambulanceData] = await Promise.all([
-        travelService.getAllTravels(),
-        ambulanceService.getAllAmbulances()
-      ]);
-      transfers.value = travelData;
-      ambulances.value = ambulanceData;
-    }
-  } catch (error) {
-    console.error('Error loading data:', error);
-    // Keep using mock data as fallback
-  }
-});
 
 const getStatusColor = (status) => {
   const colors = {
@@ -778,54 +736,32 @@ const showAssignDialog = (transfer) => {
   assignDialog.value = true;
 };
 
-const assignAmbulance = async () => {
-  isAssigning.value = true;
-  try {
-    // Aquí iría la llamada a la API para asignar la ambulancia
-    const assignment = {
-      transferId: selectedTransfer.value.id,
-      ambulanceId: selectedAmbulance.value,
-      crewIds: selectedCrew.value,
-      notes: assignmentNotes.value
+// Estadísticas calculadas
+const stats = computed(() => ({
+  totalAmbulances: ambulances.value.length,
+  availableAmbulances: ambulances.value.filter(a => a.status === 'AVAILABLE').length,
+  onDutyAmbulances: ambulances.value.filter(a => a.status === 'ON_DUTY').length,
+  maintenanceAmbulances: ambulances.value.filter(a => a.status === 'MAINTENANCE').length,
+  activeTransfers: transfers.value.filter(t => t.status === 'En Progreso').length,
+  completedTransfers: transfers.value.filter(t => t.status === 'Completado').length
+}));
+
+const markers = computed(() => {
+  return ambulances.value.map(ambulance => {
+    const defaultPosition = { lat: -31.4201, lng: -64.1888 }; // Córdoba
+    const position = ambulance.location || defaultPosition;
+    
+    // Asegurarse de que las coordenadas sean números
+    const lat = typeof position.lat === 'number' ? position.lat : defaultPosition.lat;
+    const lng = typeof position.lng === 'number' ? position.lng : defaultPosition.lng;
+    
+    return {
+      position: { lat, lng },
+      title: `Ambulancia ${ambulance.licensePlate || 'Sin patente'}`,
+      icon: getMarkerIcon(ambulance.status)
     };
-    console.log('Asignando ambulancia:', assignment);
-    
-    // Actualizar el estado del traslado
-    const transferIndex = activeTransfers.value.findIndex(t => t.id === selectedTransfer.value.id);
-    if (transferIndex !== -1) {
-      activeTransfers.value[transferIndex].status = 'IN_PROGRESS';
-    }
-    
-    assignDialog.value = false;
-  } catch (error) {
-    console.error('Error al asignar ambulancia:', error);
-  } finally {
-    isAssigning.value = false;
-  }
-};
-
-const deleteTransfer = async (id) => {
-  try {
-    const confirmed = window.confirm('¿Está seguro que desea eliminar este traslado?');
-    if (!confirmed) return;
-
-    if (import.meta.env.VITE_USE_MOCKS === 'true') {
-      // Mock implementation
-      await new Promise(resolve => setTimeout(resolve, 500));
-      const index = transfers.value.findIndex(t => t.id === id);
-      if (index !== -1) {
-        transfers.value.splice(index, 1);
-      }
-    } else {
-      // Real API implementation
-      await travelService.setCancelled(id);
-      transfers.value = await travelService.getAllTravels();
-    }
-  } catch (error) {
-    console.error('Error al eliminar el traslado:', error);
-    alert('Error al eliminar el traslado');
-  }
-};
+  });
+});
 </script>
 
 <style scoped>

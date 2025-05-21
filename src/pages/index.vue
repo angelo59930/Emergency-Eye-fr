@@ -182,9 +182,13 @@
       </v-container>
 
       <!-- Dialog para nuevo traslado -->
-      <v-dialog v-model="newTransferDialog" max-width="600px">
+      <v-dialog
+        v-model="newTransferDialog"
+        max-width="600px"
+        persistent
+      >
         <v-card>
-          <v-card-title class="text-h5 pa-4">
+          <v-card-title class="text-h5 pa-4 bg-primary text-white">
             Nuevo Traslado
           </v-card-title>
           <v-card-text class="pa-4">
@@ -194,54 +198,105 @@
                   <div class="text-subtitle-1 font-weight-medium mb-2">Información del Paciente</div>
                 </v-col>
                 <v-col cols="12" md="6">
-                  <v-text-field v-model="patientName" label="Nombre" variant="outlined" density="comfortable"
-                    required />
+                  <v-text-field
+                    v-model="newTransfer.patientName"
+                    label="Nombre"
+                    variant="outlined"
+                    density="comfortable"
+                    required
+                  />
                 </v-col>
                 <v-col cols="12" md="6">
-                  <v-text-field v-model="patientLastName" label="Apellido" variant="outlined" density="comfortable"
-                    required />
+                  <v-text-field
+                    v-model="newTransfer.patientLastName"
+                    label="Apellido"
+                    variant="outlined"
+                    density="comfortable"
+                    required
+                  />
                 </v-col>
                 <v-col cols="12" md="6">
-                  <v-text-field v-model="patientDocument" label="DNI" variant="outlined" density="comfortable"
-                    required />
+                  <v-text-field
+                    v-model="newTransfer.patientDocument"
+                    label="DNI"
+                    variant="outlined"
+                    density="comfortable"
+                    required
+                  />
                 </v-col>
                 <v-col cols="12" md="6">
-                  <v-text-field v-model="patientSocialSecurity" label="Obra Social" variant="outlined"
-                    density="comfortable" />
+                  <v-text-field
+                    v-model="newTransfer.patientSocialSecurity"
+                    label="Obra Social"
+                    variant="outlined"
+                    density="comfortable"
+                  />
                 </v-col>
                 <v-col cols="12">
-                  <v-text-field v-model="patientSocialSecurityNumber" label="Número de Afiliado" variant="outlined"
-                    density="comfortable" />
+                  <v-text-field
+                    v-model="newTransfer.patientSocialSecurityNumber"
+                    label="Número de Afiliado"
+                    variant="outlined"
+                    density="comfortable"
+                  />
                 </v-col>
                 <v-col cols="12" class="pb-0">
                   <div class="text-subtitle-1 font-weight-medium mb-2">Información del Traslado</div>
                 </v-col>
                 <v-col cols="12">
-                  <v-text-field v-model="originAddress" label="Dirección de Origen" variant="outlined"
-                    density="comfortable" required />
+                  <v-text-field
+                    v-model="newTransfer.origin"
+                    label="Dirección de Origen"
+                    variant="outlined"
+                    density="comfortable"
+                    required
+                  />
                 </v-col>
                 <v-col cols="12">
-                  <v-text-field v-model="destinationAddress" label="Dirección de Destino" variant="outlined"
-                    density="comfortable" required />
+                  <v-text-field
+                    v-model="newTransfer.destination"
+                    label="Dirección de Destino"
+                    variant="outlined"
+                    density="comfortable"
+                    required
+                  />
                 </v-col>
-                <v-col cols="12">
-                  <v-select v-model="selectedPriority" :items="priorityOptions" item-title="title" item-value="value"
-                    label="Prioridad" variant="outlined" density="comfortable" required>
+                <v-col cols="12" md="6">
+                  <v-select
+                    v-model="newTransfer.priority"
+                    :items="priorityOptions"
+                    item-title="title"
+                    item-value="value"
+                    label="Prioridad"
+                    variant="outlined"
+                    density="comfortable"
+                    required
+                  >
                     <template v-slot:selection="{ item }">
                       <v-chip :color="getPriorityColor(item.raw.value)" size="small" variant="tonal" class="mr-2">
                         {{ item.title }}
                       </v-chip>
                     </template>
-                    <template v-slot:item="{ item, props }">
-                      <v-list-item v-bind="props">
-                        <template v-slot:prepend>
-                          <v-chip :color="getPriorityColor(item.raw.value)" size="small" variant="tonal">
-                            {{ item.title }}
-                          </v-chip>
-                        </template>
-                      </v-list-item>
-                    </template>
                   </v-select>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-text-field
+                    v-model="newTransfer.scheduledTime"
+                    label="Hora Programada"
+                    type="time"
+                    variant="outlined"
+                    density="comfortable"
+                    required
+                  />
+                </v-col>
+                <v-col cols="12">
+                  <v-textarea
+                    v-model="newTransfer.notes"
+                    label="Notas Adicionales"
+                    variant="outlined"
+                    density="comfortable"
+                    rows="3"
+                  />
                 </v-col>
               </v-row>
             </v-container>
@@ -249,121 +304,111 @@
           <v-divider />
           <v-card-actions class="pa-4">
             <v-spacer />
-            <v-btn color="grey" variant="text" @click="closeNewTransferDialog">
+            <v-btn
+              color="grey"
+              variant="outlined"
+              @click="closeNewTransferDialog"
+            >
               Cancelar
             </v-btn>
-            <v-btn color="primary" variant="elevated" :loading="isCreating" :disabled="!isFormValid"
-              @click="createTransfer">
+            <v-btn
+              color="primary"
+              class="ml-2"
+              @click="createTransfer"
+              :loading="saving"
+              :disabled="!isFormValid"
+            >
               Crear Traslado
             </v-btn>
           </v-card-actions>
         </v-card>
-        <v-card-text>
-          <v-container>
-            <v-row>
-              <v-col cols="12">
-                <v-combobox v-model="originAddress" label="Dirección de Origen" :items="originSuggestions"
-                  item-text="description" item-value="place_id" @input="getPlacePredictions('origin')" clearable
-                  placeholder="Ingrese la dirección de origen" variant="outlined" />
-              </v-col>
-              <v-col cols="12">
-                <v-combobox v-model="destinationAddress" label="Dirección de Destino" :items="destinationSuggestions"
-                  item-text="description" item-value="place_id" @input="getPlacePredictions('destination')" clearable
-                  placeholder="Ingrese la dirección de destino" variant="outlined" />
-              </v-col>
-              <v-col cols="12">
-                <v-select v-model="newTransfer.priority" :items="['Alta', 'Media', 'Baja']" label="Prioridad"
-                  variant="outlined" required />
-              </v-col>
-              <v-col cols="12">
-                <v-checkbox v-model="isNewPatient" label="Nuevo Paciente" color="primary" />
-              </v-col>
-              <v-col cols="12" v-if="!isNewPatient">
-                <v-text-field v-model="existingPatientDNI" label="DNI del Paciente" @blur="fetchPatient"
-                  variant="outlined" />
-              </v-col>
-              <template v-if="isNewPatient">
-                <v-col cols="12">
-                  <v-text-field v-model="newTransfer.patient.name" label="Nombre" variant="outlined" required />
-                </v-col>
-                <v-col cols="12">
-                  <v-text-field v-model="newTransfer.patient.lastName" label="Apellido" variant="outlined" required />
-                </v-col>
-                <v-col cols="12">
-                  <v-text-field v-model="newTransfer.patient.document" label="Documento" variant="outlined" required />
-                </v-col>
-                <v-col cols="12">
-                  <v-text-field v-model="newTransfer.patient.socialSecurity" label="Seguridad Social" variant="outlined"
-                    required />
-                </v-col>
-                <v-col cols="12">
-                  <v-text-field v-model="newTransfer.patient.socialSecurityNumber" label="Número de Seguridad Social"
-                    variant="outlined" required />
-                </v-col>
-                <v-col cols="12">
-                  <v-select v-model="newTransfer.patient.gender" :items="['Masculino', 'Femenino', 'Otro']"
-                    label="Género" variant="outlined" required />
-                </v-col>
-                <v-col cols="12">
-                  <v-text-field v-model="newTransfer.patient.birthDate" label="Fecha de Nacimiento" type="date"
-                    variant="outlined" required />
-                </v-col>
-              </template>
-            </v-row>
-          </v-container>
-        </v-card-text>
-        <v-divider></v-divider>
-        <v-card>
-          <v-card-actions class="pa-4">
-            <v-spacer></v-spacer>
-            <v-btn color="grey" variant="text" @click="dialog = false">Cancelar</v-btn>
-            <v-btn color="primary" variant="elevated" @click="saveTransfer">Guardar</v-btn>
-          </v-card-actions>
-        </v-card>
       </v-dialog>
+
       <!-- Dialog para asignar ambulancia -->
-      <v-dialog v-model="assignDialog" max-width="500px">
+      <v-dialog v-model="assignDialog" max-width="600px">
         <v-card>
-          <v-card-title class="text-h5 pa-4 pb-2">
+          <v-card-title class="text-h5 pa-4 bg-success text-white">
             Asignar Ambulancia
           </v-card-title>
-          <v-card-subtitle class="px-4 pb-0" v-if="selectedTransfer">
-            <div class="d-flex align-center">
-              <v-icon size="16" color="primary" icon="mdi-account" class="mr-1" />
-              <span>{{ selectedTransfer.patient.name }} {{ selectedTransfer.patient.lastName }}</span>
-            </div>
-            <div class="d-flex align-center mt-1">
-              <v-icon size="16" color="success" icon="mdi-map-marker" class="mr-1" />
-              <span class="text-caption">{{ selectedTransfer.origin }}</span>
-              <v-icon size="16" icon="mdi-arrow-right" class="mx-1" />
-              <span class="text-caption">{{ selectedTransfer.destination }}</span>
-            </div>
-          </v-card-subtitle>
           <v-card-text class="pa-4">
-            <v-select v-model="selectedAmbulance" :items="ambulances.filter(a => a.status === 'AVAILABLE')"
-              item-title="licensePlate" item-value="id" label="Seleccionar Ambulancia" variant="outlined" required
-              class="mb-2">
-              <template v-slot:selection="{ item }">
-                <v-icon :color="getStatusColor(item.raw.status)" icon="mdi-ambulance" size="small" class="mr-2" />
-                {{ item.title }}
-              </template>
-              <template v-slot:item="{ item, props }">
-                <v-list-item v-bind="props">
-                  <template v-slot:prepend>
-                    <v-icon :color="getStatusColor(item.raw.status)" icon="mdi-ambulance" size="small" />
-                  </template>
-                  <v-list-item-title>{{ item.title }}</v-list-item-title>
-                </v-list-item>
-              </template>
-            </v-select>
+            <v-container class="pa-0">
+              <v-row>
+                <v-col cols="12">
+                  <div class="d-flex align-center mb-4">
+                    <v-avatar :color="getPriorityColor(selectedTransfer?.priority)" size="42" class="mr-3">
+                      <v-icon size="24" color="white">mdi-ambulance</v-icon>
+                    </v-avatar>
+                    <div>
+                      <div class="text-h6">Traslado #{{ selectedTransfer?.id }}</div>
+                      <div class="text-subtitle-2">{{ selectedTransfer?.patient?.name }} {{ selectedTransfer?.patient?.lastName }}</div>
+                    </div>
+                  </div>
+                </v-col>
+                <v-col cols="12">
+                  <v-select
+                    v-model="selectedAmbulance"
+                    :items="availableAmbulances"
+                    item-title="licensePlate"
+                    item-value="id"
+                    label="Seleccionar Ambulancia"
+                    variant="outlined"
+                    density="comfortable"
+                    required
+                  >
+                    <template v-slot:item="{ props, item }">
+                      <v-list-item v-bind="props">
+                        <template v-slot:prepend>
+                          <v-icon color="success">mdi-ambulance</v-icon>
+                        </template>
+                        <v-list-item-title>Ambulancia {{ item.raw.licensePlate }}</v-list-item-title>
+                        <v-list-item-subtitle>{{ item.raw.model }}</v-list-item-subtitle>
+                      </v-list-item>
+                    </template>
+                  </v-select>
+                </v-col>
+                <v-col cols="12">
+                  <v-select
+                    v-model="selectedCrew"
+                    :items="availableCrew"
+                    item-title="name"
+                    item-value="id"
+                    label="Personal Médico"
+                    variant="outlined"
+                    density="comfortable"
+                    multiple
+                    required
+                  >
+                    <template v-slot:item="{ props, item }">
+                      <v-list-item v-bind="props">
+                        <template v-slot:prepend>
+                          <v-icon color="primary">mdi-account-multiple</v-icon>
+                        </template>
+                        <v-list-item-title>{{ item.raw.name }}</v-list-item-title>
+                        <v-list-item-subtitle>{{ item.raw.role }}</v-list-item-subtitle>
+                      </v-list-item>
+                    </template>
+                  </v-select>
+                </v-col>
+                <v-col cols="12">
+                  <v-textarea
+                    v-model="assignmentNotes"
+                    label="Notas de Asignación"
+                    variant="outlined"
+                    density="comfortable"
+                    rows="3"
+                  />
+                </v-col>
+              </v-row>
+            </v-container>
           </v-card-text>
           <v-divider />
           <v-card-actions class="pa-4">
             <v-spacer />
-            <v-btn color="grey" variant="text" @click="assignDialog = false">Cancelar</v-btn>
-            <v-btn color="primary" variant="elevated" :disabled="!selectedAmbulance" :loading="isAssigning"
-              @click="assignAmbulance">
-              Asignar Ambulancia
+            <v-btn color="grey" variant="outlined" @click="assignDialog = false">
+              Cancelar
+            </v-btn>
+            <v-btn color="success" class="ml-2" @click="assignAmbulance" :loading="assigning">
+              Asignar
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -378,15 +423,19 @@ import { useRouter } from 'vue-router';
 
 // Form state
 const newTransferDialog = ref(false);
-const isCreating = ref(false);
-const patientName = ref('');
-const patientLastName = ref('');
-const patientDocument = ref('');
-const patientSocialSecurity = ref('');
-const patientSocialSecurityNumber = ref('');
-const originAddress = ref('');
-const destinationAddress = ref('');
-const selectedPriority = ref('Media');
+const saving = ref(false);
+const newTransfer = ref({
+  patientName: '',
+  patientLastName: '',
+  patientDocument: '',
+  patientSocialSecurity: '',
+  patientSocialSecurityNumber: '',
+  origin: '',
+  destination: '',
+  priority: '',
+  scheduledTime: '',
+  notes: ''
+});
 
 const priorityOptions = [
   { title: 'Alta', value: 'Alta', color: 'error' },
@@ -396,24 +445,28 @@ const priorityOptions = [
 
 const isFormValid = computed(() => {
   return (
-    patientName.value &&
-    patientLastName.value &&
-    patientDocument.value &&
-    originAddress.value &&
-    destinationAddress.value &&
-    selectedPriority.value
+    newTransfer.value.patientName &&
+    newTransfer.value.patientLastName &&
+    newTransfer.value.patientDocument &&
+    newTransfer.value.origin &&
+    newTransfer.value.destination &&
+    newTransfer.value.priority
   );
 });
 
 const resetForm = () => {
-  patientName.value = '';
-  patientLastName.value = '';
-  patientDocument.value = '';
-  patientSocialSecurity.value = '';
-  patientSocialSecurityNumber.value = '';
-  originAddress.value = '';
-  destinationAddress.value = '';
-  selectedPriority.value = 'Media';
+  newTransfer.value = {
+    patientName: '',
+    patientLastName: '',
+    patientDocument: '',
+    patientSocialSecurity: '',
+    patientSocialSecurityNumber: '',
+    origin: '',
+    destination: '',
+    priority: '',
+    scheduledTime: '',
+    notes: ''
+  };
 };
 
 const closeNewTransferDialog = () => {
@@ -423,40 +476,42 @@ const closeNewTransferDialog = () => {
 
 const createTransfer = async () => {
   if (!isFormValid.value) return;
-
+  
+  saving.value = true;
   try {
-    isCreating.value = true;
-    // Here you would make the API call to create the transfer
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulating API call
-
-    // Create new transfer with mock ID
-    const newTransfer = {
-      id: transfers.value.length + 1,
-      origin: originAddress.value,
-      destination: destinationAddress.value,
-      priority: selectedPriority.value,
-      status: 'Pendiente',
+    // Aquí iría la llamada a la API para crear el traslado
+    const transfer = {
       patient: {
-        name: patientName.value,
-        lastName: patientLastName.value,
-        document: patientDocument.value,
-        socialSecurity: patientSocialSecurity.value,
-        socialSecurityNumber: patientSocialSecurityNumber.value
-      }
+        name: newTransfer.value.patientName,
+        lastName: newTransfer.value.patientLastName,
+        document: newTransfer.value.patientDocument,
+        socialSecurity: newTransfer.value.patientSocialSecurity,
+        socialSecurityNumber: newTransfer.value.patientSocialSecurityNumber
+      },
+      origin: newTransfer.value.origin,
+      destination: newTransfer.value.destination,
+      priority: newTransfer.value.priority,
+      scheduledTime: newTransfer.value.scheduledTime,
+      notes: newTransfer.value.notes,
+      status: 'PENDING'
     };
-
-    // Add to local state
-    transfers.value.unshift(newTransfer);
-
-    // Close dialog and reset form
+    console.log('Creando traslado:', transfer);
+    
+    // Agregar el nuevo traslado a la lista de traslados activos
+    activeTransfers.value.push({
+      id: activeTransfers.value.length + 1,
+      ...transfer,
+      status: 'Pendiente'
+    });
+    
     closeNewTransferDialog();
   } catch (error) {
-    console.error('Error creating transfer:', error);
-    alert('Error al crear el traslado');
+    console.error('Error al crear el traslado:', error);
   } finally {
-    isCreating.value = false;
+    saving.value = false;
   }
 };
+
 import { usePatientService } from '@/services/usePatientService';
 import { ServiceFactory } from '@/services/ServiceFactory';
 import useAmbulanceService from '@/services/useAmbulanceService';
@@ -467,7 +522,20 @@ import GeoMap from '@/components/GeoMap.vue';
 import TravelCard from '@/components/TravelCard.vue';
 import { mockAmbulances, mockTravels } from '@/services/mocks/mockData';
 
-const ambulances = ref(mockAmbulances);
+const ambulances = ref([
+  {
+    id: 1,
+    licensePlate: 'ABC123',
+    status: 'AVAILABLE',
+    location: { lat: -31.4201, lng: -64.1888 }
+  },
+  {
+    id: 2,
+    licensePlate: 'XYZ789',
+    status: 'ON_DUTY',
+    location: { lat: -31.4150, lng: -64.1810 }
+  }
+]);
 const transfers = ref(mockTravels);
 
 // Estadísticas calculadas
@@ -480,13 +548,22 @@ const stats = computed(() => ({
   completedTransfers: transfers.value.filter(t => t.status === 'COMPLETED').length
 }));
 
-const markers = computed(() =>
-  ambulances.value.map(ambulance => ({
-    position: ambulance.location,
-    title: `Ambulancia ${ambulance.licensePlate}`,
-    icon: getMarkerIcon(ambulance.status)
-  }))
-);
+const markers = computed(() => {
+  return ambulances.value.map(ambulance => {
+    const defaultPosition = { lat: -31.4201, lng: -64.1888 }; // Córdoba
+    const position = ambulance.location || defaultPosition;
+    
+    // Asegurarse de que las coordenadas sean números
+    const lat = typeof position.lat === 'number' ? position.lat : defaultPosition.lat;
+    const lng = typeof position.lng === 'number' ? position.lng : defaultPosition.lng;
+    
+    return {
+      position: { lat, lng },
+      title: `Ambulancia ${ambulance.licensePlate || 'Sin patente'}`,
+      icon: getMarkerIcon(ambulance.status)
+    };
+  });
+});
 
 const dialog = ref(false);
 const assignDialog = ref(false);
@@ -539,45 +616,36 @@ const activeTransfers = ref([
     }
   }
 ]);
-//const originAddress = ref('');
-//const destinationAddress = ref('');
+
 const originSuggestions = ref([]);
 const destinationSuggestions = ref([]);
-const newTransfer = ref({
-  origen: '',
-  destino: '',
-  priority: '',
-  patient: {
-    name: '',
-    lastName: '',
-    document: '',
-    socialSecurity: '',
-    socialSecurityNumber: '',
-    gender: '',
-    birthDate: ''
-  }
-});
-const isNewPatient = ref(false);
-const existingPatientDNI = ref('');
-const { createPatient, getPatientByDNI } = usePatientService();
-const travelService = ServiceFactory.getTravelService();
-const ambulanceService = ServiceFactory.getAmbulanceService();
+const originAddress = ref('');
+const destinationAddress = ref('');
+const selectedCrew = ref([]);
+const assignmentNotes = ref('');
+
+const availableCrew = ref([
+  { id: 1, name: 'Dr. Juan Pérez', role: 'Médico' },
+  { id: 2, name: 'Dra. María García', role: 'Médico' },
+  { id: 3, name: 'Lic. Carlos López', role: 'Enfermero' },
+  { id: 4, name: 'Lic. Ana Martínez', role: 'Enfermera' },
+]);
 
 const router = useRouter();
 
 onMounted(async () => {
-  if (import.meta.env.VITE_USE_MOCKS !== 'true') {
-    try {
+  try {
+    if (import.meta.env.VITE_USE_MOCKS !== 'true') {
       const [travelData, ambulanceData] = await Promise.all([
         travelService.getAllTravels(),
         ambulanceService.getAllAmbulances()
       ]);
       transfers.value = travelData;
       ambulances.value = ambulanceData;
-    } catch (error) {
-      console.error('Error loading data:', error);
-      // Keep using mock data as fallback
     }
+  } catch (error) {
+    console.error('Error loading data:', error);
+    // Keep using mock data as fallback
   }
 });
 
@@ -675,9 +743,9 @@ const getPlusCode = (field, placeId) => {
       const location = place.geometry.location;
       const plusCode = OpenLocationCode.encode(location.lat(), location.lng());
       if (field === 'origin') {
-        newTransfer.value.origen = plusCode;
+        newTransfer.value.origin = plusCode;
       } else {
-        newTransfer.value.destino = plusCode;
+        newTransfer.value.destination = plusCode;
       }
     } else {
       console.error('Error al obtener detalles del lugar:', status);
@@ -685,106 +753,54 @@ const getPlusCode = (field, placeId) => {
   });
 };
 
-const saveTransfer = async () => {
-  try {
-    if (isNewPatient.value) {
-      const response = await createPatient(newTransfer.value.patient);
-      newTransfer.value.patient.id = response.data.id;
-    } else {
-      await fetchPatient();
-    }
-    const transferData = {
-      origin: newTransfer.value.origen,
-      destination: newTransfer.value.destino,
-      priority: newTransfer.value.priority,
-      patient: newTransfer.value.patient
-    };
-    await travelService.createTravel(transferData);
-    transfers.value = await travelService.getAllTravels();
-  } catch (error) {
-    console.error('Error al guardar el traslado:', error);
-  } finally {
-    dialog.value = false;
-    resetForm();
-  }
-};
-
-const fetchPatient = async () => {
-  const dni = existingPatientDNI.value;
-  if (dni) {
-    try {
-      const response = await getPatientByDNI(dni);
-      if (response.data) {
-        Object.assign(newTransfer.value.patient, response.data);
-      }
-    } catch (error) {
-      console.error('Error al obtener la información del paciente:', error);
-    }
-  }
-};
-
-//const resetForm = () => {
-//  newTransfer.value.origen = '';
-//  newTransfer.value.destino = '';
-//  newTransfer.value.priority = '';
-//  newTransfer.value.patient.name = '';
-//  newTransfer.value.patient.lastName = '';
-//  newTransfer.value.patient.document = '';
-//  newTransfer.value.patient.socialSecurity = '';
-//  newTransfer.value.patient.socialSecurityNumber = '';
-//  newTransfer.value.patient.gender = '';
-//  newTransfer.value.patient.birthDate = '';
-//  isNewPatient.value = false;
-//  existingPatientDNI.value = '';
-//  originAddress.value = '';
-//  destinationAddress.value = '';
-//  originSuggestions.value = [];
-//  destinationSuggestions.value = [];
-//};
-
 const showDialog = () => {
+  newTransfer.value = {
+    patientName: '',
+    patientLastName: '',
+    patientDocument: '',
+    patientSocialSecurity: '',
+    patientSocialSecurityNumber: '',
+    origin: '',
+    destination: '',
+    priority: '',
+    scheduledTime: '',
+    notes: ''
+  };
   newTransferDialog.value = true;
+  console.log('Dialog should open:', newTransferDialog.value); // Para debugging
 };
 
 const showAssignDialog = (transfer) => {
-  if (transfer.status === 'Asignado') {
-    alert('Este traslado ya tiene una ambulancia asignada');
-    return;
-  }
   selectedTransfer.value = transfer;
+  selectedAmbulance.value = null;
+  selectedCrew.value = [];
+  assignmentNotes.value = '';
   assignDialog.value = true;
 };
 
 const assignAmbulance = async () => {
-  console.log("llegue aca")
-  if (selectedTransfer.value && selectedAmbulance.value) {
-    try {
-      isAssigning.value = true;
-      // Here you would make the API call to assign the ambulance
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulating API call
-
-      // Update transfer status
-      const transfer = transfers.value.find(t => t.id === selectedTransfer.value.id);
-      if (transfer) {
-        transfer.status = 'Asignado';
-        transfer.assignedAmbulance = selectedAmbulance.value;
-      }
-
-      // Update ambulance status
-      const ambulance = ambulances.value.find(a => a.id === selectedAmbulance.value);
-      if (ambulance) {
-        ambulance.status = 'ON_DUTY';
-      }
-
-      assignDialog.value = false;
-      selectedTransfer.value = null;
-      selectedAmbulance.value = null;
-    } catch (error) {
-      console.error('Error assigning ambulance:', error);
-      alert('Error al asignar la ambulancia');
-    } finally {
-      isAssigning.value = false;
+  isAssigning.value = true;
+  try {
+    // Aquí iría la llamada a la API para asignar la ambulancia
+    const assignment = {
+      transferId: selectedTransfer.value.id,
+      ambulanceId: selectedAmbulance.value,
+      crewIds: selectedCrew.value,
+      notes: assignmentNotes.value
+    };
+    console.log('Asignando ambulancia:', assignment);
+    
+    // Actualizar el estado del traslado
+    const transferIndex = activeTransfers.value.findIndex(t => t.id === selectedTransfer.value.id);
+    if (transferIndex !== -1) {
+      activeTransfers.value[transferIndex].status = 'IN_PROGRESS';
     }
+    
+    assignDialog.value = false;
+  } catch (error) {
+    console.error('Error al asignar ambulancia:', error);
+  } finally {
+    isAssigning.value = false;
   }
 };
 
